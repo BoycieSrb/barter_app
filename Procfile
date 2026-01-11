@@ -1,1 +1,1 @@
-web: gunicorn barter_app.wsgi
+web: gunicorn barter.wsgi
