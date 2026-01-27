@@ -13,9 +13,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-temp-deploy-key-2026'
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Zameni Csv() sa ovim (radi 100% sa Railway):
-ALLOWED_HOSTS = config('ALLOWED_HOSTS',
-                      default='localhost,127.0.0.1',
-                      cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = ['web-production-07975.up.railway.app', '*.railway.app', 'localhost', '127.0.0.1']
 
 
 INSTALLED_APPS = [
