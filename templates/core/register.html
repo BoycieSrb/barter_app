@@ -1,65 +1,193 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Registracija - BarterApp{% endblock %}
+{% block title %}Registracija - Batterap{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-lg">
-            <div class="card-body p-5">
-                <h2 class="text-center mb-4">
-                    <i class="fas fa-user-plus text-primary"></i> Kreiraj nalog
-                </h2>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="username">
-                            <i class="fas fa-user"></i> Korisničko ime
-                        </label>
-                        <input type="text" class="form-control" id="username" name="username" 
-                               required placeholder="Unesi korisničko ime">
-                        <small class="text-muted">Minimalno 3 karaktera</small>
+<div class="vh-100 d-flex align-items-center justify-content-center p-4 glass-bg">
+    <div class="form-container">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <div class="logo mb-4">
+                <span class="logo-text">Batterap</span>
+            </div>
+            <h2 class="h4 fw-bold text-white mb-1">Kreiraj nalog</h2>
+            <p class="text-white-50 small">Pridruži se barter community</p>
+        </div>
+
+        <!-- Glass Form -->
+        <div class="glass-card p-4 p-md-5">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} glass-alert mb-4">
+                        {{ message }}
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="email">
-                            <i class="fas fa-envelope"></i> Email
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-white-75 mb-2">
+                        <i class="fas fa-user me-1"></i>Korisničko ime *
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-danger mt-1 small">{{ form.username.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-white-75 mb-2">
+                        <i class="fas fa-envelope me-1"></i>Email *
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="text-danger mt-1 small">{{ form.email.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- First Name / Last Name -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold text-white-75 mb-2">
+                            <i class="fas fa-pen me-1"></i>Ime *
                         </label>
-                        <input type="email" class="form-control" id="email" name="email" 
-                               required placeholder="tvoj@email.com">
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="text-danger mt-1 small">{{ form.first_name.errors|striptags }}</div>
+                        {% endif %}
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="password">
-                            <i class="fas fa-lock"></i> Lozinka
+                    <div class="col-6">
+                        <label class="form-label fw-semibold text-white-75 mb-2">
+                            <i class="fas fa-pen me-1"></i>Prezime *
                         </label>
-                        <input type="password" class="form-control" id="password" name="password" 
-                               required placeholder="Najmanje 6 karaktera">
-                        <small class="text-muted">Koristi jaku lozinku sa brojevima i znakovima</small>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="text-danger mt-1 small">{{ form.last_name.errors|striptags }}</div>
+                        {% endif %}
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" for="password2">
-                            <i class="fas fa-lock"></i> Potvrdi lozinku
+                </div>
+
+                <!-- Password1 / Password2 -->
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold text-white-75 mb-2">
+                            <i class="fas fa-lock me-1"></i>Lozinka *
                         </label>
-                        <input type="password" class="form-control" id="password2" name="password2" 
-                               required placeholder="Ponovi lozinku">
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger mt-1 small">{{ form.password1.errors|striptags }}</div>
+                        {% endif %}
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-user-check"></i> Registruj se
-                    </button>
-                </form>
-                
-                <hr>
-                <p class="text-center">
-                    Već imaš nalog? 
-                    <a href="{% url 'core:login' %}" class="text-primary fw-bold">Prijavi se ovde</a>
-                </p>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold text-white-75 mb-2">
+                            <i class="fas fa-lock me-1"></i>Potvrdi *
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger mt-1 small">{{ form.password2.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-light w-100 fw-bold py-3 glass-btn mb-3">
+                    <i class="fas fa-user-plus me-2"></i>Registruj se
+                </button>
+
+                <!-- Google -->
+                <a href="{% url 'google_login' %}" class="btn btn-outline-light w-100 py-3 glass-btn-outline">
+                    <i class="fab fa-google me-2"></i>Google registracija
+                </a>
+            </form>
+
+            <!-- Login link -->
+            <div class="text-center mt-4">
+                <small class="text-white-50">
+                    Već imaš nalog?
+                    <a href="{% url 'core:login' %}" class="text-white fw-semibold text-decoration-none">
+                        Uloguj se
+                    </a>
+                </small>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+:root {
+    --glass-bg: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --glass-card: rgba(255,255,255,0.12);
+    --glass-input: rgba(255,255,255,0.22);
+    --glass-border: rgba(255,255,255,0.25);
+}
+
+.glass-bg { background: var(--glass-bg); }
+
+.logo-text {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-container { max-width: 420px; width: 100%; }
+
+.glass-card {
+    backdrop-filter: blur(25px);
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.form-control {
+    backdrop-filter: blur(15px);
+    background: var(--glass-input) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    color: white !important;
+    padding: 16px 20px !important;
+    font-size: 16px;
+}
+
+.form-control::placeholder { color: rgba(255,255,255,0.6) !important; }
+.form-control:focus {
+    background: rgba(255,255,255,0.35) !important;
+    border-color: rgba(255,255,255,0.5) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.3rem rgba(255,255,255,0.2) !important;
+}
+
+.form-label { color: rgba(255,255,255,0.9) !important; }
+
+.glass-btn {
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.95) !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    border-radius: 16px !important;
+    transition: transform 0.2s ease;
+}
+
+.glass-btn:hover { background: white !important; transform: translateY(-2px); }
+
+.glass-btn-outline {
+    backdrop-filter: blur(15px);
+    background: transparent !important;
+    border: 2px solid rgba(255,255,255,0.5) !important;
+    border-radius: 16px !important;
+}
+
+.glass-alert {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    border-radius: 12px !important;
+}
+
+@media (max-width: 576px) { .glass-card { margin: 1rem; padding: 2rem !important; } }
+</style>
 {% endblock %}

@@ -296,17 +296,12 @@ class Notification(models.Model):
 # SIGNALI - Automatske akcije
 # ============================================
 
+
+
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    """Kreiraj UserProfile kada se kreira novi User"""
+def save_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    """Sačuvaj UserProfile kada se sačuva User"""
-    instance.userprofile.save()
 
 
 @receiver(post_save, sender=Offer)

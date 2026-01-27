@@ -1,0 +1,327 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registracija - BarterApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .signup-container {
+            width: 100%;
+            max-width: 450px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+            color: white;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .btn-signup {
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .divider span {
+            padding: 0 15px;
+            color: #999;
+            font-size: 14px;
+            background: white;
+        }
+        .signup-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .signup-logo i {
+            font-size: 50px;
+            color: white;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .signup-logo h1 {
+            color: white;
+            font-weight: 700;
+            font-size: 32px;
+            margin: 0;
+        }
+        .alert {
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-input-icon {
+            position: relative;
+        }
+        .form-input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            z-index: 10;
+        }
+        .form-input-icon input {
+            padding-left: 45px;
+        }
+        .btn-google {
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #333;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .btn-google:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+            color: #667eea;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .login-link a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .invalid-feedback {
+            display: block;
+        }
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <!-- Logo -->
+        <div class="signup-logo">
+            <i class="fas fa-exchange-alt"></i>
+            <h1>BarterApp</h1>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 5px;">Pridruži se zajednici</p>
+        </div>
+
+        <!-- Signup Card -->
+        <div class="card">
+            <div class="card-header text-white text-center py-4">
+                <h4 class="mb-0 fw-bold">
+                    <i class="fas fa-user-plus me-2"></i>Kreiraj nalog
+                </h4>
+                <p class="mb-0 opacity-75 mt-1">Besplatno • Brzo • Sigurno</p>
+            </div>
+
+            <div class="card-body p-5">
+                <!-- Poruke -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Form -->
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Ime -->
+                    <div class="mb-4">
+                        <label class="form-label required-field">
+                            <i class="fas fa-user me-2 text-primary"></i>Ime
+                        </label>
+                        <div class="form-input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text"
+                                   name="{{ form.first_name.name }}"
+                                   id="{{ form.first_name.id_for_label }}"
+                                   class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                                   placeholder="Unesi ime"
+                                   value=""  <!-- ČISTO POLJE -->
+                                   required>
+                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Prezime -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-user-friends me-2 text-primary"></i>Prezime
+                        </label>
+                        <div class="form-input-icon">
+                            <i class="fas fa-user-friends"></i>
+                            <input type="text"
+                                   name="{{ form.last_name.name }}"
+                                   id="{{ form.last_name.id_for_label }}"
+                                   class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                                   placeholder="Unesi prezime"
+                                   value="">  <!-- ČISTO POLJE -->
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label class="form-label required-field">
+                            <i class="fas fa-envelope me-2 text-primary"></i>Email
+                        </label>
+                        <div class="form-input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email"
+                                   name="{{ form.email.name }}"
+                                   id="{{ form.email.id_for_label }}"
+                                   class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                   placeholder="tvoj@email.com"
+                                   value=""  <!-- ČISTO POLJE -->
+                                   required>
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password1 -->
+                    <div class="mb-4">
+                        <label class="form-label required-field">
+                            <i class="fas fa-lock me-2 text-primary"></i>Lozinka
+                        </label>
+                        <div class="form-input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password"
+                                   name="{{ form.password1.name }}"
+                                   id="{{ form.password1.id_for_label }}"
+                                   class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                                   placeholder="Minimalno 8 karaktera"
+                                   required>
+                        </div>
+                        {% if form.password1.errors %}
+                            <div class="invalid-feedback">{{ form.password1.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password2 -->
+                    <div class="mb-4">
+                        <label class="form-label required-field">
+                            <i class="fas fa-lock-open me-2 text-primary"></i>Potvrdi lozinku
+                        </label>
+                        <div class="form-input-icon">
+                            <i class="fas fa-lock-open"></i>
+                            <input type="password"
+                                   name="{{ form.password2.name }}"
+                                   id="{{ form.password2.id_for_label }}"
+                                   class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                                   placeholder="Ponovi lozinku"
+                                   required>
+                        </div>
+                        {% if form.password2.errors %}
+                            <div class="invalid-feedback">{{ form.password2.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-signup w-100 mb-4">
+                        <i class="fas fa-user-plus me-2"></i>Kreiraj moj nalog
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">
+                    <span>ILI registruj se sa</span>
+                </div>
+
+                <!-- Google -->
+                <a href="{% provider_login_url 'google' %}" class="btn-google">
+                    <i class="fab fa-google me-2"></i>Registruj se sa Google-om
+                </a>
+
+                <!-- Login link -->
+                <div class="login-link">
+                    <p class="mb-0 text-center">
+                        Već imaš nalog?
+                        <a href="{% url 'account_login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Uloguj se ovde
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-4" style="color: rgba(255,255,255,0.8);">
+            <small>🛡️ Tvoji podaci su zaštićeni • BarterApp 2026</small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

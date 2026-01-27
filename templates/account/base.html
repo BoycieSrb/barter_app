@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% block title %}{% trans "Registracija | Batterap" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
+                <div class="mb-4 text-center">
+                    <h2 class="h2 fw-bold text-dark mb-1">Pridruži se Batterap-u</h2>
+                    <p class="text-muted mb-0">Kreiraj nalog za razmenu usluga i proizvoda</p>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-dark">Ime</label>
+                            {{ form.first_name|add_class:"form-control form-control-lg" }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-dark">Prezime</label>
+                            {{ form.last_name|add_class:"form-control form-control-lg" }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-dark">Email</label>
+                        {{ form.email|add_class:"form-control form-control-lg" }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-dark">Lozinka</label>
+                        {{ form.password1|add_class:"form-control form-control-lg" }}
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label fw-semibold text-dark">Potvrdi lozinku</label>
+                        {{ form.password2|add_class:"form-control form-control-lg" }}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold py-3 rounded-3">
+                        {% trans "Registruj se" %}
+                    </button>
+                </form>
+
+                <div class="divider divider-primary my-4 d-flex align-items-center">
+                    <p class="text-center text-muted mb-0 fw-semibold">ILI</p>
+                </div>
+
+                <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-lg w-100 py-3 mb-2">
+                    Uloguj se
+                </a>
+
+                <div class="text-center">
+                    <small class="text-muted">
+                        Imate Google nalog?
+                        <a href="{% url 'google_login' %}" class="text-primary fw-semibold">Nastavi sa Google-om</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

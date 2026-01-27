@@ -1,0 +1,139 @@
+{% extends "account/base.html" %}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}Prijavi se{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
+                
+                <!-- Header -->
+                <div class="card-header bg-primary text-white text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h2 class="mb-0">
+                        <i class="fas fa-sign-in-alt"></i> Prijavi se
+                    </h2>
+                    <p class="mb-0 mt-2" style="font-size: 14px; opacity: 0.9;">Uđi na svoj račun</p>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+                    
+                    <!-- Google Login Button -->
+                    <div class="mb-4">
+                        <a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=963302002660-ojcnj8c6h4f1rnbhggdrh4m3ue3mjqjv.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:8000/accounts/google/login/callback/&response_type=code&scope=profile%20email"
+                           class="btn btn-outline-danger w-100 py-3"
+                           style="font-size: 16px; font-weight: 600; border-radius: 10px; border: 2px solid #DB4437; transition: all 0.3s ease;">
+                            <i class="fab fa-google me-2"></i>
+                            Nastavi sa Google-om
+                        </a>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="flex-grow-1" style="height: 1px; background-color: #e0e0e0;"></div>
+                        <span class="px-3" style="color: #999; font-size: 14px;">ILI</span>
+                        <div class="flex-grow-1" style="height: 1px; background-color: #e0e0e0;"></div>
+                    </div>
+
+                    <!-- Email/Password Form -->
+                    <form method="post" action="{% url 'account_login' %}">
+                        {% csrf_token %}
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="id_login" class="form-label" style="font-weight: 600; color: #333;">Email ili korisničko ime</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="id_login"
+                                   name="login"
+                                   placeholder="tvoj@email.com"
+                                   required
+                                   style="border-radius: 8px; padding: 12px; border: 1px solid #ddd; font-size: 15px;">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label" style="font-weight: 600; color: #333;">Lozinka</label>
+                            <input type="password"
+                                   class="form-control"
+                                   id="id_password"
+                                   name="password"
+                                   placeholder="••••••••"
+                                   required
+                                   style="border-radius: 8px; padding: 12px; border: 1px solid #ddd; font-size: 15px;">
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="id_remember" name="remember">
+                            <label class="form-check-label" for="id_remember" style="color: #666; font-size: 14px;">
+                                Zapamti me
+                            </label>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-3" style="font-size: 16px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                            <i class="fas fa-arrow-right me-2"></i>Prijavi se
+                        </button>
+                    </form>
+
+                    <!-- Forgot Password & Sign Up -->
+                    <div class="mt-4 text-center">
+                        <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                            <a href="{% url 'account_reset_password' %}" style="color: #667eea; text-decoration: none; font-weight: 600;">Zaboravio si lozinku?</a>
+                        </p>
+                        <p style="color: #666; font-size: 14px;">
+                            Nemaš račun?
+                            <a href="{% url 'account_signup' %}" style="color: #667eea; text-decoration: none; font-weight: 600;">Kreiraj jedan</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Security Note -->
+            <p class="text-center mt-4" style="color: #999; font-size: 12px;">
+                <i class="fas fa-lock me-1"></i> Tvoji podaci su zaštićeni enkriptovanjem
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .btn-outline-danger:hover {
+        background-color: #DB4437;
+        color: white;
+        border-color: #DB4437;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn {
+            font-size: 14px;
+            padding: 10px !important;
+        }
+    }
+</style>
+{% endblock %}

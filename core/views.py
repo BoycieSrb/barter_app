@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 import json
 
 from .models import Category, Offer, Message, Trade, UserProfile, Review, Notification
+from .forms import RegistrationForm
 
 
 # ==================== HOME ====================
@@ -798,45 +799,26 @@ def logout_view(request):
     return redirect('core:home')
 
 
-def register_view(request):
-    """Registracija"""
+def register(request):
+    """Registracija - NEW VERSION sa formom"""
     if request.user.is_authenticated:
         return redirect('core:home')
 
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-        password2 = request.POST.get('password2', '')
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # ✅ UserProfile se kreira automatski via signal!
+            messages.success(request, f'Dobrodošli {user.username}! Možete se sada ulogovati.')
+            return redirect('core:login')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = RegistrationForm()
 
-        if password != password2:
-            messages.error(request, 'Lozinke se ne poklapaju!')
-            return redirect('core:register')
-
-        if len(password) < 6:
-            messages.error(request, 'Lozinka mora imati najmanje 6 karaktera!')
-            return redirect('core:register')
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Korisničko ime je već zauzeto!')
-            return redirect('core:register')
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email je već registrovan!')
-            return redirect('core:register')
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
-        )
-
-        UserProfile.objects.create(user=user)
-
-        messages.success(request, 'Nalog je kreiran! Sada se možeš ulogovati.')
-        return redirect('core:login')
-
-    return render(request, 'core/register.html')
+    return render(request, 'core/register.html', {'form': form})
 
 
 # ==================== API ENDPOINTS ====================
@@ -1146,3 +1128,47 @@ def get_user_detail_api(request, username):
         'user': user_data,
         'success': True,
     })
+
+def google_oauth_redirect(request):
+    """Redirekcija na Google OAuth login - koristi allauth template tag"""
+    from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+    adapter = DefaultSocialAccountAdapter()
+    try:
+        app = adapter.get_app(request, provider='google')
+        # Koristi allauth built-in login flow
+        from django.shortcuts import render
+        context = {'app': app}
+        return redirect('/accounts/google/login/')
+    except:
+        return redirect('/login/')
+
+
+# ==================== OAUTH DEBUGGING ====================
+import logging
+
+logger = logging.getLogger('allauth')
+
+
+# ✅ ISPRAVNA patching
+def setup_allauth_logging():
+    """Setup allauth OAuth2 debugging"""
+    from allauth.socialaccount.providers.oauth2 import views as oauth2_views
+
+    original_dispatch = oauth2_views.OAuth2Adapter.complete_login
+
+    def debug_complete_login(self, request, app, **kwargs):
+        logger.debug(f"🔵 ALLAUTH complete_login START")
+        logger.debug(f"🔵 App: {app}")
+        try:
+            result = original_dispatch(self, request, app, **kwargs)
+            logger.debug(f"🟢 ALLAUTH complete_login SUCCESS")
+            return result
+        except Exception as e:
+            logger.error(f"🔴 ALLAUTH ERROR: {str(e)}", exc_info=True)
+            raise
+
+    oauth2_views.OAuth2Adapter.complete_login = debug_complete_login
+
+
+# Pozovi na startup
+setup_allauth_logging()

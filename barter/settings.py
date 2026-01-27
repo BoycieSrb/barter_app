@@ -2,12 +2,13 @@ import os
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import logging
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here')  # OBRISI default u produkciji!
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,barter-app-production.railway.app,barterapp-production-95ba.up.railway.app', cast=lambda v: [s.strip() for s in v.split(',')])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,22 +18,26 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-
-    # Local apps
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'core',
-
-    # 3rd party
     'crispy_forms',
     'crispy_bootstrap5',
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ DODAJ OVO
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -50,14 +55,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'core.context_processors.unread_count',  # ✅ DODAJ OVO
+                'core.context_processors.unread_count',
             ],
         },
     },
 ]
 
-# =============== DATABASE ===============
-# Za production koristi PostgreSQL preko DATABASE_URL
+# DATABASE
 if os.getenv('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
@@ -67,7 +71,6 @@ if os.getenv('DATABASE_URL'):
         )
     }
 else:
-    # Za lokalni razvoj koristi SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -75,29 +78,52 @@ else:
         }
     }
 
-# =============== MEDIA & STATIC ===============
+# MEDIA & STATIC
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static'] if os.path.exists(BASE_DIR / 'static') else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# WhiteNoise za optimizaciju static fajlova
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# =============== AUTH ===============
-LOGIN_URL = '/login/'
+# AUTHENTICATION BACKENDS
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# ALLAUTH - POPRAVLJENO (bez deprecated)
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_LOGIN_METHODS = {'email'}  # FIKS: Uklonjen deprecated ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'first_name*', 'last_name', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FORM_CLASS = 'core.forms.RegistrationForm'
+
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# =============== EMAIL ===============
+# Social
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"prompt": "select_account"}
+    }
+}
+
+SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapter"
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# =============== CRISPY FORMS ===============
+# CRISPY FORMS
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# =============== LOCALIZATION ===============
+# LOCALIZATION
 LANGUAGE_CODE = 'sr'
 TIME_ZONE = 'Europe/Belgrade'
 USE_I18N = True
@@ -105,13 +131,40 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# =============== CSRF ===============
+# CSRF
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
-    'https://yourdomain.com',  # Dodaj tvoj domen kada ga imaš
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
-# =============== SECURITY ===============
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+# SECURITY - FIKSIRANO (sve warnings rešeno kada DEBUG=False)
+SECURE_SSL_REDIRECT = True  # FIKS W008
+SECURE_HSTS_SECONDS = 31536000  # FIKS W004
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SESSION_COOKIE_SECURE = True  # FIKS W012
+CSRF_COOKIE_SECURE = True  # FIKS W016
+
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# LOGGING
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+        },
+    },
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': 'INFO'},
+        'allauth': {'handlers': ['console'], 'level': 'DEBUG'},
+    },
+}

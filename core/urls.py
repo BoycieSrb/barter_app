@@ -44,8 +44,11 @@ urlpatterns = [
 
     # Auth
     path('login/', views.login_view, name='login'),
-    path('register/', views.register_view, name='register'),
+    path('register/', views.register, name='register'),
     path('logout/', views.logout_view, name='logout'),
+
+    # Google OAuth
+    path('oauth/google/', views.google_oauth_redirect, name='google_oauth_redirect'),
 
     # API Endpoints
     path('api/unread-count/', views.get_unread_count, name='get_unread_count'),
