@@ -6,7 +6,10 @@ import logging
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
+# DODAJ default privremeno:
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-temp-deploy-key-2026')
+
+
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # **FIX**: Koristi Csv() umjesto lambda - Railway env parsira savršeno!
