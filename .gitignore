@@ -13,3 +13,6 @@ media/
 .egg-info/
 dist/
 build/
+db.sqlite3
+*.log
+__pycache__/
