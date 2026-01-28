@@ -8,10 +8,35 @@ from django.http import JsonResponse
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator
 import json
+import logging
 
 from .models import Category, Offer, Message, Trade, UserProfile, Review, Notification
 from .forms import RegistrationForm
 
+logger = logging.getLogger('allauth')
+
+# ✅ SETUP ALLAUTH LOGGING - ISPRAVNO
+def setup_allauth_logging():
+    """Setup allauth OAuth2 debugging"""
+    from allauth.socialaccount.providers.oauth2 import views as oauth2_views
+
+    original_dispatch = oauth2_views.OAuth2Adapter.complete_login
+
+    def debug_complete_login(self, request, app, **kwargs):
+        logger.debug(f"🔵 ALLAUTH complete_login START")
+        logger.debug(f"🔵 App: {app}")
+        try:
+            result = original_dispatch(self, request, app, **kwargs)
+            logger.debug(f"🟢 ALLAUTH complete_login SUCCESS")
+            return result
+        except Exception as e:
+            logger.error(f"🔴 ALLAUTH ERROR: {str(e)}", exc_info=True)
+            raise
+
+    oauth2_views.OAuth2Adapter.complete_login = debug_complete_login
+
+# Pozovi na startup
+setup_allauth_logging()
 
 # ==================== HOME ====================
 
